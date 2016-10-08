@@ -1,0 +1,45 @@
+Prototype code structure and installation
+-----------------------------------------
+
+Directory layout
+----------------
+kernel/:	kernel module
+userlib/:	user library
+common/:	common include file(s)
+
+Installation
+------------
+
+1. Goto userlib dir
+
+$ ./autogen.sh
+$ ./configure
+$ su
+# make install
+# ln -s /usr/local/etc/libibverbs.d/siw.driver /etc/libibverbs.d/siw.driver
+# echo /usr/local/lib >> /etc/ld.so.conf.d/usr_local_lib.conf
+# ldconfig
+
+2. Goto kernel dir
+
+$ make
+$ su
+# insmod ./siw.ko	for binding TX thread to one abritrary CPU
+			(check dmesg which CPU runs TX thread)
+  or
+
+# insmod ./siw.ko tx_cpu_list=[n,m,...]
+			for starting TX thread on all CPUs given in
+			comma separated list, if CPU available
+
+Kernel parameters
+-----------------
+
+low_delay_tx:	default: Y
+
+		Setting it to "N" or '0' will put tx thread to sleep
+		to be woken up by inbound READ.req or SQ resume. Y is
+		2.5us better than N.
+
+		echo "N" > /sys/module/siw/parameters/low_delay_tx
+		to sleep.
